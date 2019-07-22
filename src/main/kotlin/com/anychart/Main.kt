@@ -11,13 +11,19 @@ import org.jetbrains.ktor.host.*
 import org.jetbrains.ktor.http.*
 import org.jetbrains.ktor.response.*
 
-object Fruits : Table("fruits") {
+object Questions : Table("questions") {
     val id = integer("id").primaryKey()
-    val name = varchar("name", length = 64)
-    val value = integer("value")
+    val questionKz = varchar("question_kz", length = 256)
+    val questionRu = varchar("question_ru", length = 256)
+    val description = varchar("description", length = 256)
+
 }
 
-data class Fruit(val id: Int, val name: String, val value: Int)
+data class Question(
+        val id: Int,
+        val questionKz: String,
+        val questionRu: String,
+        val description : String)
 
 /*
     Init MySQL database connection
@@ -31,15 +37,21 @@ fun initDB() {
 /*
     Getting fruit data from database
  */
-fun getTopFruits(): String {
-    var json: String = ""
+fun getQuestions(): String {
+    var json = ""
     transaction {
-        val res = Fruits.selectAll().orderBy(Fruits.value, false).limit(5)
-        val c = ArrayList<Fruit>()
-        for (f in res) {
-            c.add(Fruit(id = f[Fruits.id], name = f[Fruits.name], value = f[Fruits.value]))
+        val result = Questions.selectAll().orderBy(Questions.id, false).limit(5)
+        val arrayList = ArrayList<Question>()
+        for (question in result) {
+            arrayList.add(
+                    Question(
+                            id = question[Questions.id],
+                            questionKz = question[Questions.questionKz],
+                            questionRu = question[Questions.questionRu],
+                            description = question[Questions.description])
+            )
         }
-        json = Gson().toJson(c)
+        json = Gson().toJson(arrayList)
     }
     return json
 }
@@ -52,19 +64,19 @@ fun main(args: Array<String>) {
     embeddedServer(Netty, 8080) {
         routing {
             get("/") {
-                call.respondText(template(getTopFruits()), ContentType.Text.Html)
+                call.respondText(getQuestions(), ContentType.Text.Html)
             }
 
             get("/login") {
-                call.respondText(template(getTopFruits()), ContentType.Text.Html)
+                call.respondText(template(getQuestions()), ContentType.Text.Html)
             }
 
             get("/questions") {
-                call.respondText(template(getTopFruits()), ContentType.Text.Html)
+                call.respondText(template(getQuestions()), ContentType.Text.Html)
             }
 
             get("/result") {
-                call.respondText(template(getTopFruits()), ContentType.Text.Html)
+                call.respondText(template(getQuestions()), ContentType.Text.Html)
             }
         }
     }.start(wait = true)
