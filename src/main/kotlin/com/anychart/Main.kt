@@ -23,7 +23,7 @@ data class Fruit(val id: Int, val name: String, val value: Int)
     Init MySQL database connection
  */
 fun initDB() {
-    val url = "jdbc:mysql://anychart_user:anychart_pass@localhost:3306/anychart_db?useUnicode=true&serverTimezone=UTC"
+    val url = "jdbc:mysql://root:2323N**lan@localhost:3306/hyzmet_db?useUnicode=true&serverTimezone=UTC"
     val driver = "com.mysql.cj.jdbc.Driver"
     Database.connect(url, driver)
 }
@@ -39,7 +39,7 @@ fun getTopFruits(): String {
         for (f in res) {
             c.add(Fruit(id = f[Fruits.id], name = f[Fruits.name], value = f[Fruits.value]))
         }
-        json = Gson().toJson(c);
+        json = Gson().toJson(c)
     }
     return json
 }
@@ -52,6 +52,18 @@ fun main(args: Array<String>) {
     embeddedServer(Netty, 8080) {
         routing {
             get("/") {
+                call.respondText(template(getTopFruits()), ContentType.Text.Html)
+            }
+
+            get("/login") {
+                call.respondText(template(getTopFruits()), ContentType.Text.Html)
+            }
+
+            get("/questions") {
+                call.respondText(template(getTopFruits()), ContentType.Text.Html)
+            }
+
+            get("/result") {
                 call.respondText(template(getTopFruits()), ContentType.Text.Html)
             }
         }
